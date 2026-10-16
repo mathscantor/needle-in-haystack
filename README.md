@@ -19,13 +19,13 @@ The skill follows its own advice about context: `SKILL.md` is short, and the tem
 ### With `npx skills` (any supported agent)
 
 ```bash
-npx skills add <repo-url>
+npx skills add https://github.com/mathscantor/needle-in-haystack.git
 ```
 
 ### With the bundled installer
 
 ```bash
-git clone <repo-url> needle-in-haystack
+git clone https://github.com/mathscantor/needle-in-haystack.git
 cd needle-in-haystack
 ./install.sh                       # auto-detect installed agents, user-wide
 ./install.sh --tools all           # every supported agent
@@ -36,11 +36,14 @@ cd needle-in-haystack
 ./install.sh --uninstall
 ```
 
-Without a local checkout, set `NEEDLE_REPO_URL` and pipe the script:
+Without a local checkout:
 
 ```bash
-curl -fsSL <raw-url>/install.sh | NEEDLE_REPO_URL=<repo-url> bash -s -- --tools all
+curl -fsSL https://raw.githubusercontent.com/mathscantor/needle-in-haystack/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mathscantor/needle-in-haystack/main/install.sh | bash -s -- --tools all
 ```
+
+That clones [the repo](https://github.com/mathscantor/needle-in-haystack) and installs from it. `NEEDLE_REPO_URL` overrides the clone URL. `--link` still needs a local checkout.
 
 ### Where it installs
 

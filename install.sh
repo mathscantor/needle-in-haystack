@@ -12,11 +12,13 @@
 #   --dry-run          print what would happen without changing anything
 #   -h, --help         show this help
 #
-# Env: NEEDLE_REPO_URL  git URL to clone from when the script runs outside a checkout
-#                      (e.g. `curl -fsSL .../install.sh | NEEDLE_REPO_URL=... bash`).
+# Remote (no checkout):
+#   curl -fsSL https://raw.githubusercontent.com/mathscantor/needle-in-haystack/main/install.sh | bash
+# Env: NEEDLE_REPO_URL  optional git URL override for that remote install.
 set -euo pipefail
 
 SKILL_NAME="needle-in-haystack"
+DEFAULT_REPO_URL="https://github.com/mathscantor/needle-in-haystack.git"
 ALL_TOOLS="claude codex opencode cursor deepseek trae"
 
 tools_arg="auto"
@@ -53,20 +55,22 @@ run() {
   if [[ $dry_run -eq 1 ]]; then echo "  [dry-run] $*"; else "$@"; fi
 }
 
-# Locate the skill source: this checkout, or a fresh clone of NEEDLE_REPO_URL.
+# Locate the skill source: this checkout, or a shallow clone of the GitHub repo.
 script_dir=""
 if [[ -n "${BASH_SOURCE[0]:-}" && -f "${BASH_SOURCE[0]}" ]]; then
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 src="${script_dir:+$script_dir/skills/$SKILL_NAME}"
 if [[ "$action" == "install" && ( -z "$src" || ! -f "$src/SKILL.md" ) ]]; then
-  [[ -n "${NEEDLE_REPO_URL:-}" ]] || die "skill source not found; run from a checkout or set NEEDLE_REPO_URL"
   [[ "$mode" == "copy" ]] || die "--link needs a local checkout"
+  repo_url="${NEEDLE_REPO_URL:-$DEFAULT_REPO_URL}"
+  command -v git >/dev/null 2>&1 || die "git is required to install from a URL"
   tmp="$(mktemp -d)"
   trap 'rm -rf "$tmp"' EXIT
-  git clone --depth 1 --quiet "$NEEDLE_REPO_URL" "$tmp/repo" || die "clone failed: $NEEDLE_REPO_URL"
+  # stdin is the script when invoked via `curl | bash`; keep git off it.
+  git clone --depth 1 --quiet "$repo_url" "$tmp/repo" </dev/null || die "clone failed: $repo_url"
   src="$tmp/repo/skills/$SKILL_NAME"
-  [[ -f "$src/SKILL.md" ]] || die "skills/$SKILL_NAME/SKILL.md not found in $NEEDLE_REPO_URL"
+  [[ -f "$src/SKILL.md" ]] || die "skills/$SKILL_NAME/SKILL.md not found in $repo_url"
 fi
 
 has_cmd() { command -v "$1" >/dev/null 2>&1; }
