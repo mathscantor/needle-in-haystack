@@ -30,17 +30,12 @@ cd needle-in-haystack
 ./install.sh                       # auto-detect installed agents, user-wide
 ./install.sh --tools all           # every supported agent
 ./install.sh --tools claude,cursor # specific agents
-./install.sh --scope project --project-dir ~/src/target-app
-./install.sh --link                # symlink, so `git pull` updates the skill
-./install.sh --dry-run             # show what would happen
-./install.sh --uninstall
 ```
 
 Without a local checkout:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mathscantor/needle-in-haystack/main/install.sh | bash
-curl -fsSL https://raw.githubusercontent.com/mathscantor/needle-in-haystack/main/install.sh | bash -s -- --tools all
 ```
 
 That clones [the repo](https://github.com/mathscantor/needle-in-haystack) and installs from it. `NEEDLE_REPO_URL` overrides the clone URL. `--link` still needs a local checkout.
